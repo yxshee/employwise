@@ -1,4 +1,6 @@
-# EmployWise Front End Assignment
+# EmployWise : User Management Portal
+
+
 
 [![React](https://img.shields.io/badge/React-v18.2.0-blue)](https://reactjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
