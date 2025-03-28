@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Pagination, Form, InputGroup } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
@@ -15,11 +15,8 @@ const UserList = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const { logout } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetchUsers(currentPage);
-  }, [currentPage]);
-
-  const fetchUsers = async (page) => {
+  // Memoize fetchUsers function to prevent infinite re-renders
+  const fetchUsers = useCallback(async (page) => {
     setLoading(true);
     try {
       const response = await api.get(`/api/users?page=${page}`);
@@ -35,7 +32,11 @@ const UserList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  useEffect(() => {
+    fetchUsers(currentPage);
+  }, [currentPage, fetchUsers]);
 
   const handleEdit = (user) => {
     setCurrentUser(user);
