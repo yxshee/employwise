@@ -6,7 +6,8 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,16 +15,17 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       setIsAuthenticated(true);
     }
-    setIsLoading(false);
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
     try {
       const response = await api.post('/api/login', { email, password });
-      const { token } = response.data;
+      const { token, userData } = response.data;
       
       localStorage.setItem('token', token);
       setIsAuthenticated(true);
+      setUser(userData);
       return { success: true };
     } catch (error) {
       return { 
@@ -36,11 +38,12 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    setUser(null);
     navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
