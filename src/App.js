@@ -8,6 +8,13 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './components/Login';
 import UserList from './components/UserList';
+import EditUser from './components/EditUser';
+
+// Check if user is authenticated (token exists)
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/login" />;
+};
 
 function App() {
   return (
@@ -19,13 +26,21 @@ function App() {
           <Route 
             path="/users" 
             element={
-              <ProtectedRoute>
+              <PrivateRoute>
                 <UserList />
-              </ProtectedRoute>
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/edit/:id" 
+            element={
+              <PrivateRoute>
+                <EditUser />
+              </PrivateRoute>
             } 
           />
           <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/users" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

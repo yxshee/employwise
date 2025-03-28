@@ -12,7 +12,10 @@ _A modern React application for managing users through the Reqres API._
 
 ## Overview
 
-EmployWise is a React-based web application designed for user management. It integrates seamlessly with the Reqres API to handle authentication, display a paginated user list, and perform edit/delete operations. The app features a responsive design built with Bootstrap and employs React Router for smooth navigation.
+A React application that includes:
+- A Login page with form validation
+- A User List page with client-side search and filtering
+- An Edit User page to update user details
 
 ![Screenshot of EmployWise](./assets/screenshot.png)
 
@@ -165,3 +168,12 @@ You can host this application on any free platform (e.g., Heroku, Netlify). Once
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+## Assumptions
+- A mock API is used for authentication and user data retrieval.
+- On successful login, a token is stored in localStorage.
+- If token is missing or expired, users are redirected to the login page.
+- Bonus: Client-side search/filter on the users list and hosting on a free server.
+
+## Additional
+To deploy the app (e.g., on Heroku), follow the respective deployment guidelines.
