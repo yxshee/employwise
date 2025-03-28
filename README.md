@@ -17,7 +17,7 @@ A React application that includes:
 - A User List page with client-side search and filtering
 - An Edit User page to update user details
 
-![Screenshot of EmployWise](./assets/screenshot.png)
+![Screenshot of EmployWise](./assets/ss.png)
 
 ---
 
