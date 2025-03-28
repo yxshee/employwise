@@ -15,7 +15,7 @@ const UserList = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const { logout } = useContext(AuthContext);
 
-  // Memoize fetchUsers function to prevent infinite re-renders
+  // Memoize fetchUsers function to prevent infinite re-renders and satisfy ESLint rules
   const fetchUsers = useCallback(async (page) => {
     setLoading(true);
     try {

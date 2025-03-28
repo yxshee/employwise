@@ -22,7 +22,7 @@ const UserEditModal = ({ user, show, onHide, onUpdate }) => {
     setLoading(true);
     
     try {
-      // Make the API call but don't assign to unused variable
+      // Removed unused variable assignment
       await api.put(`/api/users/${user.id}`, {
         first_name: firstName,
         last_name: lastName,
