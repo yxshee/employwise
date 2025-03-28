@@ -1,194 +1,131 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getUser, updateUser } from '../services/api';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getUsers, updateUser } from '../services/api';
+import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 
 const EditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const timerRef = useRef(null);
+  
   const [user, setUser] = useState({
     first_name: '',
     last_name: '',
-    email: '',
-    avatar: ''
+    email: ''
   });
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const fetchUser = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await getUser(id);
-      setUser(data.data);
-      setError('');
-    } catch (err) {
-      setError('Failed to fetch user details. Please try again.');
-      console.error('Error fetching user:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
+  
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
-  // Clean up timer on component unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
+    const fetchUser = async () => {
+      try {
+        const response = await getUsers();
+        const userData = response.data.find(u => u.id === parseInt(id));
+        if (userData) {
+          setUser({
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            email: userData.email
+          });
+        } else {
+          setError('User not found');
+        }
+      } catch (err) {
+        setError('Failed to fetch user data');
+      } finally {
+        setLoading(false);
       }
     };
-  }, []);
-
+    
+    fetchUser();
+  }, [id]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser(prev => ({ ...prev, [name]: value }));
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Enhanced validation
-    if (!user.first_name || !user.last_name || !user.email) {
-      setError('All fields are required');
-      return;
-    }
-    
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(user.email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
+    setSubmitting(true);
+    setError('');
     
     try {
-      setSubmitting(true);
-      setError('');
-      
-      await updateUser(id, {
-        first_name: user.first_name,
-        last_name: user.last_name,
-        email: user.email
-      });
-      
+      await updateUser(id, user);
       setSuccess('User updated successfully!');
-      
-      // Navigate back to user list after a short delay
-      timerRef.current = setTimeout(() => {
-        navigate('/users');
-      }, 1500);
-      
+      setTimeout(() => navigate('/users'), 2000);
     } catch (err) {
       setError('Failed to update user. Please try again.');
-      console.error('Update error:', err);
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
+  
+  if (loading) return <Container className="mt-4"><p>Loading user data...</p></Container>;
+  
   return (
-    <div className="container mt-4">
-      <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-6">
-          <div className="card shadow">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h3 className="card-title">Edit User</h3>
-                <Link to="/users" className="btn btn-outline-secondary btn-sm">
-                  Back to Users
-                </Link>
-              </div>
-              
-              {error && (
-                <div className="alert alert-danger" role="alert">
-                  {error}
-                </div>
-              )}
-              
-              {success && (
-                <div className="alert alert-success" role="alert">
-                  {success}
-                </div>
-              )}
-              
-              <div className="text-center mb-4">
-                <img 
-                  src={user.avatar} 
-                  alt={`${user.first_name} ${user.last_name}`} 
-                  className="rounded-circle img-thumbnail"
-                  style={{ width: '120px', height: '120px' }}
-                />
-              </div>
-              
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="first_name" className="form-label">First Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="first_name"
-                    name="first_name"
-                    value={user.first_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label htmlFor="last_name" className="form-label">Last Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="last_name"
-                    name="last_name"
-                    value={user.last_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">Email</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    value={user.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="d-grid gap-2">
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary" 
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Updating...' : 'Update User'}
-                  </button>
-                </div>
-              </form>
+    <Container className="mt-4">
+      <Card>
+        <Card.Body>
+          <Card.Title>Edit User</Card.Title>
+          
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
+          
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="first_name"
+                value={user.first_name}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="last_name"
+                value={user.last_name}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={user.email}
+                onChange={handleChange}
+                required
+              />
+            </Form.Group>
+            
+            <div className="d-flex justify-content-between">
+              <Button 
+                variant="secondary" 
+                onClick={() => navigate('/users')}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                type="submit" 
+                disabled={submitting}
+              >
+                {submitting ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 
