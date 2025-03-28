@@ -1,38 +1,34 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Login from './components/Login';
-import UsersList from './components/UsersList';
-import EditUser from './components/EditUser';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
-const ProtectedRoute = ({ children }) => {
-  const { token } = useAuth();
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './components/Login';
+import UserList from './components/UserList';
 
 function App() {
   return (
-    <AuthProvider>
-      <div className="App">
+    <Router>
+      <AuthProvider>
+        <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/users" element={
-            <ProtectedRoute>
-              <UsersList />
-            </ProtectedRoute>
-          } />
-          <Route path="/users/:id/edit" element={
-            <ProtectedRoute>
-              <EditUser />
-            </ProtectedRoute>
-          } />
+          <Route 
+            path="/users" 
+            element={
+              <ProtectedRoute>
+                <UserList />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </div>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
